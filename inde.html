@@ -1,0 +1,555 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Coffee Talk</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Karla:ital,wght@0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F6EEE3; --paper:#FFFDF9; --ink:#2B1B16; --soft:#6E5A50;
+  --espresso:#3B2620; --coffee:#6B4A3A; --caramel:#E8A33D; --foam:#F2E3CF;
+  --sage:#3E6B5E; --sage-l:#DCE8E2; --plum:#6B2D5C; --plum-l:#F1E1EC; --rose:#D9867E;
+  --line:#E6D7C4;
+  --display:'Bricolage Grotesque',system-ui,sans-serif; --body:'Karla',system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.5;overflow-x:hidden}
+button{font:inherit;cursor:pointer;border:0;background:none;color:inherit}
+
+/* organic background stains */
+.stain{position:fixed;border-radius:50%;pointer-events:none;z-index:0}
+.s1{width:420px;height:420px;right:-140px;top:-160px;border:18px solid rgba(107,74,58,.07)}
+.s2{width:260px;height:260px;left:-110px;bottom:-90px;border:12px solid rgba(232,163,61,.12)}
+.blob{position:fixed;z-index:0;pointer-events:none;opacity:.55}
+
+.app{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:22px 24px 96px;min-height:100%}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
+.brand{font-family:var(--display);font-weight:800;font-size:20px;letter-spacing:-.02em;color:var(--espresso);display:flex;align-items:center;gap:8px}
+.brand .cup{width:30px;height:30px}
+.dots{display:flex;gap:6px}
+.dots i{width:10px;height:10px;border-radius:50%;background:var(--line);display:block;transition:.25s}
+.dots i.on{background:var(--coffee);width:26px;border-radius:6px}
+
+.screen{display:none;animation:in .35s ease}
+.screen.on{display:block}
+@keyframes in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+/* cover */
+.cover{display:grid;grid-template-columns:1.15fr .85fr;gap:28px;align-items:center;min-height:68vh}
+.kicker{display:inline-block;font-family:var(--display);font-weight:600;font-size:14px;letter-spacing:.06em;text-transform:uppercase;color:var(--paper);background:var(--coffee);padding:5px 12px;border-radius:999px}
+.cover h1{font-family:var(--display);font-weight:800;font-size:clamp(46px,7vw,92px);line-height:.92;letter-spacing:-.04em;color:var(--espresso);margin:16px 0 14px}
+.cover h1 em{font-style:normal;color:var(--caramel)}
+.cover p.lead{font-size:20px;color:var(--soft);max-width:520px}
+.rounds{display:grid;gap:10px}
+.rnd{display:flex;align-items:center;gap:14px;background:var(--paper);border:1.5px solid var(--line);border-radius:20px 20px 20px 6px;padding:12px 16px}
+.rnd b{font-family:var(--display);font-weight:800;font-size:22px;color:var(--caramel);width:28px}
+.rnd span{flex:1;font-weight:500}
+.rnd small{font-family:var(--display);font-weight:600;color:var(--coffee);background:var(--foam);border-radius:999px;padding:2px 10px;font-size:13px}
+
+/* round header */
+.head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:16px;flex-wrap:wrap}
+.head .num{font-family:var(--display);font-weight:600;font-size:14px;letter-spacing:.08em;text-transform:uppercase;color:var(--coffee)}
+.head h2{font-family:var(--display);font-weight:800;font-size:clamp(32px,4.4vw,52px);line-height:1;letter-spacing:-.03em;color:var(--espresso);margin-top:4px}
+.timer{display:flex;align-items:center;gap:8px;background:var(--paper);border:1.5px solid var(--line);border-radius:999px;padding:6px 6px 6px 16px}
+.timer .t{font-family:var(--display);font-weight:800;font-size:24px;font-variant-numeric:tabular-nums;color:var(--espresso);min-width:64px}
+.timer button{background:var(--espresso);color:var(--paper);border-radius:999px;padding:7px 14px;font-weight:700;font-size:14px}
+.timer.run button{background:var(--rose)}
+.timer.done .t{color:var(--rose)}
+
+.grid{display:grid;grid-template-columns:330px 1fr;gap:18px;align-items:start}
+.side{display:grid;gap:14px}
+.card{background:var(--paper);border:1.5px solid var(--line);border-radius:24px;padding:18px 20px}
+.card h3{font-family:var(--display);font-weight:800;font-size:15px;letter-spacing:.05em;text-transform:uppercase;color:var(--coffee);margin-bottom:10px}
+ol.steps{list-style:none;counter-reset:s;display:grid;gap:9px}
+ol.steps li{counter-increment:s;position:relative;padding-left:34px;font-size:16px;line-height:1.4}
+ol.steps li::before{content:counter(s);position:absolute;left:0;top:0;width:24px;height:24px;border-radius:50%;background:var(--espresso);color:var(--paper);font-family:var(--display);font-weight:800;font-size:13px;display:grid;place-items:center;margin-top:1px}
+.goal{background:var(--caramel);border-color:transparent;color:var(--espresso)}
+.goal h3{color:var(--espresso);opacity:.75}
+.goal .g{display:flex;flex-wrap:wrap;gap:8px}
+.goal .g span{background:rgba(255,253,249,.55);border-radius:12px;padding:6px 10px;font-weight:700;font-size:15px}
+
+/* expression pool */
+.pool .chips{display:flex;flex-wrap:wrap;gap:7px}
+.chip{position:relative;border:1.5px solid var(--line);background:var(--foam);color:var(--espresso);border-radius:999px;padding:5px 12px;font-weight:700;font-size:14.5px;transition:.18s;text-align:left}
+.chip:hover{border-color:var(--coffee)}
+.chip.used{background:var(--sage);border-color:var(--sage);color:#fff}
+.chip.used::after{content:" ✓"}
+.pool .count{font-family:var(--display);font-weight:800;color:var(--sage);font-size:14px;float:right;text-transform:none;letter-spacing:0}
+.pool .hint{font-size:13px;color:var(--soft);margin-top:9px}
+.tip{position:fixed;z-index:50;max-width:280px;background:var(--espresso);color:var(--paper);border-radius:14px;padding:10px 12px;font-size:14px;line-height:1.35;pointer-events:none;opacity:0;transition:opacity .15s}
+.tip b{color:var(--caramel)}
+.tip.on{opacity:1}
+
+.main{display:grid;gap:14px}
+
+/* round 1 */
+.qs{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.q{background:var(--paper);border:1.5px solid var(--line);border-radius:26px 26px 26px 8px;padding:20px;min-height:170px;display:flex;flex-direction:column;gap:10px}
+.q b{font-family:var(--display);font-weight:800;font-size:40px;line-height:1;color:var(--caramel)}
+.q p{font-family:var(--display);font-weight:600;font-size:21px;line-height:1.2;color:var(--espresso)}
+.band{border-radius:22px;padding:16px 20px;display:flex;gap:14px;align-items:center}
+.band.plum{background:var(--plum-l)}
+.band.sage{background:var(--sage-l)}
+.band .ic{font-size:30px}
+.band p{font-size:17px}
+.band strong{font-family:var(--display)}
+.frames{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.frames span{background:var(--paper);border:1.5px dashed var(--line);border-radius:12px;padding:5px 10px;font-size:15px;font-style:italic}
+
+/* round 2 */
+.mf{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.st{background:var(--paper);border:1.5px solid var(--line);border-radius:22px;padding:16px 18px;display:flex;flex-direction:column;gap:10px}
+.st .row{display:flex;gap:10px;align-items:flex-start}
+.st .n{font-family:var(--display);font-weight:800;color:var(--caramel);font-size:22px;line-height:1}
+.st .claim{font-family:var(--display);font-weight:600;font-size:19px;line-height:1.22;color:var(--espresso);flex:1}
+.st .act{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.st .act button{border:1.5px solid var(--line);border-radius:999px;padding:5px 14px;font-weight:700;font-size:14px;background:var(--bg)}
+.st .act button.pick{background:var(--espresso);color:var(--paper);border-color:var(--espresso)}
+.st .act .rev{margin-left:auto;background:none;border:0;color:var(--coffee);text-decoration:underline;text-underline-offset:3px;padding:5px 2px}
+.st .ans{display:none;border-top:1.5px dashed var(--line);padding-top:10px;font-size:15.5px}
+.st.open .ans{display:block}
+.st .verdict{display:inline-block;font-family:var(--display);font-weight:800;font-size:13px;letter-spacing:.06em;text-transform:uppercase;border-radius:8px;padding:2px 8px;margin-right:6px;color:#fff}
+.v-myth{background:var(--rose)} .v-fact{background:var(--sage)}
+.st.right{border-color:var(--sage)} .st.wrong{border-color:var(--rose)}
+
+/* round 3 */
+.steal{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.sc{background:var(--espresso);color:var(--paper);border-radius:20px 20px 20px 6px;padding:13px 15px}
+.sc b{font-family:var(--display);font-weight:800;font-size:18px;color:var(--caramel);display:block;line-height:1.15}
+.sc small{display:block;font-size:13px;opacity:.75;margin:2px 0 6px}
+.sc i{font-size:14.5px;line-height:1.35;display:block}
+.pickq{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.pq{background:var(--paper);border:1.5px solid var(--line);border-radius:18px;padding:13px 15px;text-align:left;display:flex;gap:10px;align-items:flex-start;font-size:16.5px;line-height:1.35;transition:.18s}
+.pq:hover{border-color:var(--coffee)}
+.pq .box{flex:none;width:22px;height:22px;border-radius:7px;border:2px solid var(--line);margin-top:1px;display:grid;place-items:center;font-size:13px;color:#fff}
+.pq.on{background:var(--sage-l);border-color:var(--sage)}
+.pq.on .box{background:var(--sage);border-color:var(--sage)}
+.pq.on .box::after{content:"✓"}
+.subhead{font-family:var(--display);font-weight:800;font-size:15px;letter-spacing:.05em;text-transform:uppercase;color:var(--coffee);display:flex;justify-content:space-between}
+.subhead span{text-transform:none;letter-spacing:0;color:var(--sage)}
+
+/* round 4 */
+.msgs{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.phone{background:var(--paper);border:1.5px solid var(--line);border-radius:24px;padding:14px 16px 16px;display:flex;flex-direction:column;gap:9px}
+.who{display:flex;align-items:center;gap:10px}
+.av{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;font-family:var(--display);font-weight:800;color:#fff;font-size:16px;flex:none}
+.who b{font-family:var(--display);font-weight:800;font-size:16px;display:block;line-height:1.1}
+.who small{font-size:12.5px;color:var(--soft)}
+.bub{background:var(--foam);border-radius:18px 18px 18px 5px;padding:9px 13px;font-size:16px;line-height:1.38;align-self:flex-start;max-width:96%;position:relative}
+.bub .tm{display:block;text-align:right;font-size:11.5px;color:var(--soft);margin-top:2px}
+.reply{border:1.5px dashed var(--line);border-radius:18px 18px 5px 18px;padding:8px 13px;font-size:14.5px;color:var(--soft);font-style:italic;align-self:flex-end;text-align:right}
+.reply.done{background:var(--sage);border-color:var(--sage);color:#fff;font-style:normal;font-weight:700}
+
+/* round 5 */
+.verdict-wrap{display:grid;grid-template-columns:1.2fr .8fr;gap:14px}
+.build{background:var(--espresso);color:var(--paper);border-radius:28px;padding:22px 24px;display:grid;gap:12px}
+.build h3{color:var(--caramel)}
+.bstep{display:flex;gap:14px;align-items:flex-start}
+.bstep b{flex:none;font-family:var(--display);font-weight:800;font-size:13px;letter-spacing:.06em;text-transform:uppercase;background:var(--caramel);color:var(--espresso);border-radius:8px;padding:3px 9px;margin-top:3px;min-width:84px;text-align:center}
+.bstep p{font-size:17px;line-height:1.4}
+.bstep i{color:#F2D5A6}
+.big{display:grid;place-items:center;text-align:center;background:var(--paper);border:1.5px solid var(--line);border-radius:28px;padding:22px}
+.big .sec{font-family:var(--display);font-weight:800;font-size:96px;line-height:1;letter-spacing:-.04em;color:var(--espresso);font-variant-numeric:tabular-nums}
+.big .lbl{color:var(--soft);font-weight:500;margin-bottom:12px}
+.big button{background:var(--caramel);color:var(--espresso);font-weight:800;border-radius:999px;padding:11px 26px;font-family:var(--display);font-size:17px}
+.scale{display:flex;justify-content:space-between;gap:6px;margin-top:16px;width:100%}
+.scale button{flex:1;border:1.5px solid var(--line);border-radius:14px;padding:8px 2px;font-size:13px;font-weight:700;line-height:1.2;background:var(--bg)}
+.scale button.on{background:var(--coffee);color:#fff;border-color:var(--coffee)}
+
+/* teacher notes */
+.tn{margin-top:4px}
+.tn summary{list-style:none;cursor:pointer;display:inline-flex;align-items:center;gap:8px;font-family:var(--display);font-weight:600;font-size:14px;color:var(--soft);padding:6px 12px;border-radius:999px;border:1.5px solid var(--line);background:var(--paper)}
+.tn summary::-webkit-details-marker{display:none}
+.tn[open] summary{background:var(--soft);color:var(--paper);border-color:var(--soft)}
+.tn .body{margin-top:10px;background:var(--paper);border:1.5px solid var(--line);border-left:6px solid var(--soft);border-radius:18px;padding:14px 18px;display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px 22px;font-size:15px}
+.tn h4{font-family:var(--display);font-weight:800;font-size:13px;letter-spacing:.05em;text-transform:uppercase;color:var(--coffee);margin-bottom:4px}
+.tn ul{padding-left:18px;display:grid;gap:3px}
+
+/* nav */
+.nav{position:fixed;left:0;right:0;bottom:0;z-index:20;display:flex;justify-content:center;gap:10px;padding:12px 16px calc(12px + env(safe-area-inset-bottom));background:linear-gradient(transparent,var(--bg) 40%)}
+.nav button{background:var(--espresso);color:var(--paper);border-radius:999px;padding:11px 22px;font-weight:700;font-family:var(--display);font-size:16px;box-shadow:0 6px 18px rgba(59,38,32,.18)}
+.nav button.ghost{background:var(--paper);color:var(--espresso);border:1.5px solid var(--line)}
+.nav button:disabled{opacity:.35;cursor:default}
+
+@media (max-width:900px){
+  .cover,.grid,.verdict-wrap{grid-template-columns:1fr}
+  .side{position:static}
+  .qs,.steal{grid-template-columns:1fr 1fr}
+  .mf,.msgs,.pickq{grid-template-columns:1fr}
+}
+@media (max-width:560px){
+  .app{padding:16px 16px 96px}
+  .qs,.steal{grid-template-columns:1fr}
+  .q{min-height:0}
+  .big .sec{font-size:72px}
+}
+</style>
+</head>
+<body>
+<div class="stain s1"></div><div class="stain s2"></div>
+<svg class="blob" style="left:-60px;top:38%;width:220px" viewBox="0 0 200 200" aria-hidden="true"><path fill="#F2D5A6" d="M45,-58C58,-47,68,-32,72,-15C75,2,72,21,62,36C52,51,35,62,16,68C-3,74,-24,74,-41,65C-58,56,-71,37,-74,17C-77,-3,-70,-24,-57,-38C-44,-52,-25,-59,-6,-62C13,-65,32,-69,45,-58Z" transform="translate(100 100)"/></svg>
+<svg class="blob" style="right:-50px;bottom:6%;width:180px" viewBox="0 0 200 200" aria-hidden="true"><path fill="#DCE8E2" d="M39,-49C51,-38,61,-25,66,-9C70,7,68,25,58,38C48,51,30,59,11,64C-8,69,-28,70,-43,61C-58,52,-68,32,-71,12C-74,-9,-70,-31,-57,-44C-44,-57,-22,-61,-4,-56C14,-51,27,-60,39,-49Z" transform="translate(100 100)"/></svg>
+
+<div class="app">
+  <div class="top">
+    <div class="brand">
+      <svg class="cup" viewBox="0 0 32 32" aria-hidden="true"><path d="M5 12h18v7a8 8 0 0 1-8 8h-2a8 8 0 0 1-8-8z" fill="#6B4A3A"/><path d="M23 14h2.5a3.5 3.5 0 0 1 0 7H23" fill="none" stroke="#6B4A3A" stroke-width="2.4"/><path d="M10 4c-1.5 2 1.5 3 0 5M15 3c-1.5 2 1.5 3 0 5M20 4c-1.5 2 1.5 3 0 5" fill="none" stroke="#E8A33D" stroke-width="2" stroke-linecap="round"/></svg>
+      Coffee talk
+    </div>
+    <div class="dots" id="dots"></div>
+  </div>
+
+  <!-- COVER -->
+  <section class="screen" data-title="Start">
+    <div class="cover">
+      <div>
+        <span class="kicker">After your research</span>
+        <h1>Coffee:<br>good or <em>bad</em><br>for you?</h1>
+        <p class="lead">You read about it, you wrote about it. Now you talk about it. Five rounds, twenty minutes. You speak, your teacher takes notes.</p>
+      </div>
+      <div class="rounds">
+        <div class="rnd"><b>1</b><span>What did you find out?</span><small>4 min</small></div>
+        <div class="rnd"><b>2</b><span>Myth or fact?</span><small>4 min</small></div>
+        <div class="rnd"><b>3</b><span>Your coffee life</span><small>4 min</small></div>
+        <div class="rnd"><b>4</b><span>What would you tell them?</span><small>5 min</small></div>
+        <div class="rnd"><b>5</b><span>The final verdict</span><small>3 min</small></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ROUND 1 -->
+  <section class="screen" data-title="Round 1">
+    <div class="head">
+      <div><div class="num">Round 1 · Retell</div><h2>What did you find out?</h2></div>
+      <div class="timer" data-min="4"><span class="t">04:00</span><button>Start</button></div>
+    </div>
+    <div class="grid">
+      <aside class="side">
+        <div class="card"><h3>Steps</h3>
+          <ol class="steps">
+            <li>Close your summary. No notes from here on.</li>
+            <li>Answer the three research questions out loud, one by one.</li>
+            <li>For each answer, say where you found it.</li>
+            <li>End with the one thing that surprised you most.</li>
+          </ol>
+        </div>
+        <div class="card goal"><h3>Goal</h3><div class="g"><span>3 answers</span><span>3 sources</span><span>3 expressions</span><span>1 surprise</span></div></div>
+        <div class="card pool" data-pool></div>
+      </aside>
+      <div class="main">
+        <div class="qs">
+          <div class="q"><b>1</b><p>What does science say about coffee's benefits?</p></div>
+          <div class="q"><b>2</b><p>What are the risks, and how much is too much?</p></div>
+          <div class="q"><b>3</b><p>So… should you drink it or not?</p></div>
+        </div>
+        <div class="band sage"><div class="ic">🔎</div><div><p><strong>Say where it came from.</strong> These openers keep you from sounding like you're reading.</p>
+          <div class="frames"><span>From what I read…</span><span>According to one study I found…</span><span>Most of the articles agreed that…</span><span>One source said…, but another one said…</span></div></div></div>
+        <div class="band plum"><div class="ic">✨</div><div><p><strong>Finish with a surprise.</strong></p>
+          <div class="frames"><span>What really caught my attention was…</span><span>I had no idea that…</span><span>I always thought…, but actually…</span></div></div></div>
+        <details class="tn"><summary>Teacher notes</summary><div class="body">
+          <div><h4>Follow-up questions</h4><ul><li>Did any of your sources disagree with each other?</li><li>Which source did you trust the most? Why?</li><li>Was it easier to find benefits or risks?</li><li>Which fact would you tell a friend at the café?</li></ul></div>
+          <div><h4>Listen for</h4><ul><li>Reporting verbs: <i>suggest, claim, show, point out</i></li><li>Hedging: <i>seems to, may, tends to</i></li><li>Numbers said naturally: <i>about four cups, up to 400 milligrams</i></li></ul></div>
+        </div></details>
+      </div>
+    </div>
+  </section>
+
+  <!-- ROUND 2 -->
+  <section class="screen" data-title="Round 2">
+    <div class="head">
+      <div><div class="num">Round 2 · Use your research</div><h2>Myth or fact?</h2></div>
+      <div class="timer" data-min="4"><span class="t">04:00</span><button>Start</button></div>
+    </div>
+    <div class="grid">
+      <aside class="side">
+        <div class="card"><h3>Steps</h3>
+          <ol class="steps">
+            <li>Read each statement out loud.</li>
+            <li>Tap <b>Myth</b> or <b>Fact</b>.</li>
+            <li>Give one reason before you check. Guessing is fine; just say why.</li>
+            <li>Tap <b>Check</b>. Wrong? Say what you'll believe from now on.</li>
+          </ol>
+        </div>
+        <div class="card goal"><h3>Goal</h3><div class="g"><span>6 verdicts</span><span>6 reasons</span><span id="score">0 of 6 right</span></div></div>
+        <div class="card"><h3>Not sure? Say it like this</h3>
+          <div class="frames"><span>I'd say it's a myth, but I'm not 100% sure.</span><span>As far as I know…</span><span>It sounds true, but…</span><span>I think the jury is still out on that.</span></div>
+        </div>
+      </aside>
+      <div class="main">
+        <div class="mf" id="mf"></div>
+        <details class="tn"><summary>Teacher notes</summary><div class="body">
+          <div><h4>Push for a reason</h4><ul><li>Why do you think so?</li><li>Did you read anything about that?</li><li>Who usually says that? Your parents? Social media?</li></ul></div>
+          <div><h4>After a wrong guess</h4><ul><li>So what's the real story?</li><li>Ask her to correct the statement in her own words: <i>"Actually, decaf still has…"</i></li></ul></div>
+        </div></details>
+      </div>
+    </div>
+  </section>
+
+  <!-- ROUND 3 -->
+  <section class="screen" data-title="Round 3">
+    <div class="head">
+      <div><div class="num">Round 3 · About you</div><h2>Your coffee life</h2></div>
+      <div class="timer" data-min="4"><span class="t">04:00</span><button>Start</button></div>
+    </div>
+    <div class="grid">
+      <aside class="side">
+        <div class="card"><h3>Steps</h3>
+          <ol class="steps">
+            <li>Read the six new expressions below.</li>
+            <li>Choose 4 questions. Tap to mark them.</li>
+            <li>Answer each with a real moment: when, where, what happened.</li>
+            <li>Use at least 3 new expressions and 2 from your pool.</li>
+          </ol>
+        </div>
+        <div class="card goal"><h3>Goal</h3><div class="g"><span>4 answers</span><span>4 real moments</span><span>3 new + 2 pool</span></div></div>
+        <div class="card pool" data-pool></div>
+      </aside>
+      <div class="main">
+        <div class="subhead">Steal these</div>
+        <div class="steal">
+          <div class="sc"><b>run on coffee</b><small>use coffee as your main energy</small><i>During finals week I basically ran on coffee and crackers.</i></div>
+          <div class="sc"><b>pull an all-nighter</b><small>stay awake all night to study or work</small><i>I pulled an all-nighter before my first exam and blanked anyway.</i></div>
+          <div class="sc"><b>wired / jittery</b><small>too energetic, nervous, shaky</small><i>After the third cup I was so jittery I couldn't hold my pen.</i></div>
+          <div class="sc"><b>wear off</b><small>slowly stop having an effect</small><i>The coffee wears off around 3 p.m., right in the middle of class.</i></div>
+          <div class="sc"><b>the crash</b><small>the sudden tired feeling afterwards</small><i>The energy is great, but the crash is brutal.</i></div>
+          <div class="sc"><b>an acquired taste</b><small>something you learn to like over time</small><i>Black coffee was an acquired taste for me. I hated it at first.</i></div>
+        </div>
+        <div class="subhead">Choose 4 <span id="qcount">0 of 4</span></div>
+        <div class="pickq" id="pickq">
+          <button class="pq"><span class="box"></span>Coffee and you: daily ritual, occasional pick-me-up, or no thanks? How did it start?</button>
+          <button class="pq"><span class="box"></span>Think about your hardest exam week. What did you run on?</button>
+          <button class="pq"><span class="box"></span>Have you ever pulled an all-nighter? Was it worth it?</button>
+          <button class="pq"><span class="box"></span>What happens to you when the caffeine wears off?</button>
+          <button class="pq"><span class="box"></span>How do you take your coffee? Was it an acquired taste?</button>
+          <button class="pq"><span class="box"></span>Café, padaria, library or home: where do you study best, and what do you drink there?</button>
+        </div>
+        <details class="tn"><summary>Teacher notes</summary><div class="body">
+          <div><h4>Dig deeper</h4><ul><li>When was the last time that happened?</li><li>Would you do it again?</li><li>What would you tell your first-semester self?</li></ul></div>
+          <div><h4>Language to watch</h4><ul><li><i>wear off</i> is intransitive: <i>the coffee wears off</i> (not <i>wears me off</i>)</li><li><i>pull an all-nighter</i>, never <i>do an all-night</i></li><li><i>How do you take your coffee?</i> → <i>Black / with milk / no sugar</i></li></ul></div>
+        </div></details>
+      </div>
+    </div>
+  </section>
+
+  <!-- ROUND 4 -->
+  <section class="screen" data-title="Round 4">
+    <div class="head">
+      <div><div class="num">Round 4 · Give advice</div><h2>What would you tell them?</h2></div>
+      <div class="timer" data-min="5"><span class="t">05:00</span><button>Start</button></div>
+    </div>
+    <div class="grid">
+      <aside class="side">
+        <div class="card"><h3>Steps</h3>
+          <ol class="steps">
+            <li>Read each message out loud.</li>
+            <li>Reply as if you were talking to them: 2 or 3 sentences.</li>
+            <li>Use a <b>different</b> pool expression in each reply.</li>
+            <li>Tap the reply bubble when you're done.</li>
+          </ol>
+        </div>
+        <div class="card goal"><h3>Goal</h3><div class="g"><span>4 replies</span><span>4 different expressions</span><span id="rcount">0 of 4 sent</span></div></div>
+        <div class="card pool" data-pool></div>
+        <div class="card"><h3>Advice starters</h3>
+          <div class="frames"><span>If I were you, I'd…</span><span>You might want to…</span><span>Have you thought about…?</span><span>Honestly, I wouldn't…</span><span>As long as you…, you're fine.</span></div>
+        </div>
+      </aside>
+      <div class="main">
+        <div class="msgs">
+          <div class="phone">
+            <div class="who"><div class="av" style="background:#D9867E">B</div><div><b>Bia</b><small>classmate · finals study group</small></div></div>
+            <div class="bub">Finals start Monday 😵 My plan: two energy drinks a day + coffee every three hours. Sleep is for after. Genius, right??<span class="tm">23:47</span></div>
+            <button class="reply">Your reply…</button>
+          </div>
+          <div class="phone">
+            <div class="who"><div class="av" style="background:#3E6B5E">R</div><div><b>Rafa</b><small>friend from college</small></div></div>
+            <div class="bub">I stopped drinking coffee three days ago and I've had a headache every afternoon since. Should I just go back to it? 🤕<span class="tm">16:12</span></div>
+            <button class="reply">Your reply…</button>
+          </div>
+          <div class="phone">
+            <div class="who"><div class="av" style="background:#6B2D5C">J</div><div><b>Julia</b><small>cousin</small></div></div>
+            <div class="bub">I only drink coffee with "a little sugar" lol. Four spoons. Three times a day. That's fine, right? It's just coffee ☕<span class="tm">09:05</span></div>
+            <button class="reply">Your reply…</button>
+          </div>
+          <div class="phone">
+            <div class="who"><div class="av" style="background:#E8A33D">G</div><div><b>Group project 📚</b><small>4 members</small></div></div>
+            <div class="bub">ok new idea: we meet at 10 p.m. at the 24h café and work on the project until sunrise. Who's in? 🙋‍♀️<span class="tm">20:31</span></div>
+            <button class="reply">Your reply…</button>
+          </div>
+        </div>
+        <details class="tn"><summary>Teacher notes</summary><div class="body">
+          <div><h4>Expressions that fit best</h4><ul><li><b>Bia:</b> too much of a good thing · a double-edged sword · cut down on</li><li><b>Rafa:</b> kick the habit · can't function without · in moderation</li><li><b>Julia:</b> cut down on · too much of a good thing</li><li><b>Group:</b> a pick-me-up · pull an all-nighter · in moderation</li></ul></div>
+          <div><h4>Content check</h4><ul><li>Rafa: headaches in the first days without caffeine are a common withdrawal effect; they usually ease after a few days. Cutting down gradually helps.</li><li>Bia: energy drinks + coffee can push caffeine well past what's considered safe in a day.</li></ul></div>
+          <div><h4>Push further</h4><ul><li>And if she says she can't function without it?</li><li>What would you actually do in that situation?</li></ul></div>
+        </div></details>
+      </div>
+    </div>
+  </section>
+
+  <!-- ROUND 5 -->
+  <section class="screen" data-title="Round 5">
+    <div class="head">
+      <div><div class="num">Round 5 · Your opinion</div><h2>The final verdict</h2></div>
+      <div class="timer" data-min="3"><span class="t">03:00</span><button>Start</button></div>
+    </div>
+    <div class="grid">
+      <aside class="side">
+        <div class="card"><h3>Steps</h3>
+          <ol class="steps">
+            <li>Choose your verdict on the scale.</li>
+            <li>Take 30 seconds to plan in your head.</li>
+            <li>Press <b>Go</b> and speak for 60 seconds without stopping.</li>
+            <li>Follow the four parts on the left.</li>
+          </ol>
+        </div>
+        <div class="card goal"><h3>Goal</h3><div class="g"><span>60 seconds</span><span>4 pool expressions</span><span>1 "as long as" or "unless"</span></div></div>
+        <div class="card pool" data-pool></div>
+      </aside>
+      <div class="main">
+        <div class="verdict-wrap">
+          <div class="build">
+            <h3>Build your minute</h3>
+            <div class="bstep"><b>Verdict</b><p><i>After everything I read, my verdict is…</i></p></div>
+            <div class="bstep"><b>2 reasons</b><p><i>First of all… · On top of that…</i></p></div>
+            <div class="bstep"><b>1 exception</b><p><i>…as long as you… · …unless you…</i></p></div>
+            <div class="bstep"><b>Your plan</b><p><i>So from now on, I'm going to… / I'm not going to…</i></p></div>
+          </div>
+          <div class="big">
+            <div class="lbl">Speak without stopping</div>
+            <div class="sec" id="sec">60</div>
+            <button id="go">Go</button>
+            <div class="scale" id="scale">
+              <button>Bad for you</button><button>More bad than good</button><button>It depends</button><button>More good than bad</button><button>Good for you</button>
+            </div>
+          </div>
+        </div>
+        <details class="tn"><summary>Teacher notes</summary><div class="body">
+          <div><h4>If there's time left</h4><ul><li>Argue the opposite verdict for 30 seconds.</li><li>Would your answer be different for a teenager? For a pregnant woman? For an athlete?</li></ul></div>
+          <div><h4>Then feedback</h4><ul><li>2 things she said really well (quote her)</li><li>2 corrections from your notes</li><li>1 expression she avoided all class: ask her to use it now</li></ul></div>
+        </div></details>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div class="tip" id="tip"></div>
+
+<nav class="nav">
+  <button class="ghost" id="prev">← Back</button>
+  <button id="next">Next →</button>
+</nav>
+
+<script>
+const POOL=[
+ ["in moderation","in a reasonable amount, not too much","Coffee is fine in moderation."],
+ ["cut down on","reduce how much you consume","Doctors say to cut down on sugar in coffee."],
+ ["a pick-me-up","something that gives you energy","Coffee is my afternoon pick-me-up."],
+ ["can't function without","need something to work normally","I can't function without my morning coffee."],
+ ["the jury is still out","there's no final answer yet","The jury is still out on some effects."],
+ ["a double-edged sword","something with good and bad sides","Caffeine is a double-edged sword."],
+ ["kick the habit","stop a habit","It's hard to kick the habit."],
+ ["too much of a good thing","something good that becomes bad in excess","Five cups is too much of a good thing."]
+];
+const MF=[
+ ["Coffee dehydrates you.","myth","Caffeine makes you go to the bathroom a bit more, but the water in the coffee makes up for it. For regular drinkers, coffee counts as hydration."],
+ ["Decaf has zero caffeine.","myth","Decaf still has a little caffeine, usually around 2 to 15 mg per cup. A regular cup has roughly 80 to 100 mg."],
+ ["A shot of espresso has more caffeine than a cup of filter coffee.","myth","Espresso is more concentrated, but a shot is tiny: about 60 to 65 mg. A normal cup of filter coffee usually has more."],
+ ["A coffee at 5 p.m. can still affect your sleep at 11 p.m.","fact","Caffeine's half-life is about five hours, so around half of it is still in your body at bedtime."],
+ ["Up to about 400 mg of caffeine a day is considered safe for most healthy adults.","fact","That's roughly four cups of filter coffee. Pregnant women are usually told to stay under 200 mg."],
+ ["A strong black coffee helps you sober up.","myth","You feel more awake, but the alcohol in your blood stays exactly the same. You're just a more alert drunk person."]
+];
+
+/* screens & nav */
+const screens=[...document.querySelectorAll('.screen')];
+const dots=document.getElementById('dots');
+screens.forEach(()=>dots.appendChild(document.createElement('i')));
+let cur=0;
+function show(i){
+  cur=Math.max(0,Math.min(screens.length-1,i));
+  screens.forEach((s,k)=>s.classList.toggle('on',k===cur));
+  [...dots.children].forEach((d,k)=>d.classList.toggle('on',k===cur));
+  document.getElementById('prev').disabled=cur===0;
+  document.getElementById('next').textContent=cur===screens.length-1?'Done ✓':(cur===0?'Start →':'Next →');
+  document.getElementById('next').disabled=cur===screens.length-1;
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+document.getElementById('prev').onclick=()=>show(cur-1);
+document.getElementById('next').onclick=()=>show(cur+1);
+document.addEventListener('keydown',e=>{
+  if(e.target.closest('input,textarea'))return;
+  if(e.key==='ArrowRight')show(cur+1);
+  if(e.key==='ArrowLeft')show(cur-1);
+});
+
+/* expression pools (each round tracks its own) */
+const tip=document.getElementById('tip');
+document.querySelectorAll('[data-pool]').forEach(card=>{
+  card.innerHTML='<h3>Your expressions <span class="count">0 of 8</span></h3><div class="chips"></div><p class="hint">Tap one when you use it. Hover to see the meaning.</p>';
+  const box=card.querySelector('.chips'),cnt=card.querySelector('.count');
+  POOL.forEach(([e,m,x])=>{
+    const b=document.createElement('button');b.className='chip';b.textContent=e;
+    b.onclick=()=>{b.classList.toggle('used');cnt.textContent=box.querySelectorAll('.used').length+' of 8';};
+    b.onmouseenter=()=>{tip.innerHTML='<b>'+e+'</b>: '+m+'<br><i>'+x+'</i>';const r=b.getBoundingClientRect();tip.style.left=Math.min(r.left,innerWidth-296)+'px';tip.style.top=(r.bottom+8)+'px';tip.classList.add('on');};
+    b.onmouseleave=()=>tip.classList.remove('on');
+    box.appendChild(b);
+  });
+});
+
+/* timers */
+document.querySelectorAll('.timer').forEach(t=>{
+  const total=+t.dataset.min*60;let left=total,id=null;
+  const out=t.querySelector('.t'),btn=t.querySelector('button');
+  const fmt=s=>String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');
+  btn.onclick=()=>{
+    if(id){clearInterval(id);id=null;t.classList.remove('run');btn.textContent='Resume';return;}
+    if(left<=0){left=total;t.classList.remove('done');out.textContent=fmt(left);}
+    t.classList.add('run');btn.textContent='Pause';
+    id=setInterval(()=>{left--;out.textContent=fmt(Math.max(left,0));
+      if(left<=0){clearInterval(id);id=null;t.classList.remove('run');t.classList.add('done');btn.textContent='Restart';}},1000);
+  };
+});
+
+/* round 2 */
+const mf=document.getElementById('mf'),score=document.getElementById('score');
+MF.forEach(([c,v,ex],i)=>{
+  const d=document.createElement('div');d.className='st';let pick=null;
+  d.innerHTML=`<div class="row"><span class="n">${i+1}</span><p class="claim">${c}</p></div>
+  <div class="act"><button data-v="myth">Myth</button><button data-v="fact">Fact</button><button class="rev">Check</button></div>
+  <div class="ans"><span class="verdict v-${v}">${v}</span>${ex}</div>`;
+  d.querySelectorAll('[data-v]').forEach(b=>b.onclick=()=>{if(d.classList.contains('open'))return;pick=b.dataset.v;d.querySelectorAll('[data-v]').forEach(x=>x.classList.toggle('pick',x===b));});
+  d.querySelector('.rev').onclick=()=>{d.classList.add('open');if(pick)d.classList.add(pick===v?'right':'wrong');
+    score.textContent=mf.querySelectorAll('.right').length+' of 6 right';};
+  mf.appendChild(d);
+});
+
+/* round 3 */
+const qc=document.getElementById('qcount');
+document.querySelectorAll('#pickq .pq').forEach(b=>b.onclick=()=>{
+  const on=document.querySelectorAll('#pickq .pq.on').length;
+  if(!b.classList.contains('on')&&on>=4)return;
+  b.classList.toggle('on');qc.textContent=document.querySelectorAll('#pickq .pq.on').length+' of 4';
+});
+
+/* round 4 */
+const rc=document.getElementById('rcount');
+document.querySelectorAll('.reply').forEach(b=>b.onclick=()=>{
+  b.classList.toggle('done');b.textContent=b.classList.contains('done')?'Sent ✓':'Your reply…';
+  rc.textContent=document.querySelectorAll('.reply.done').length+' of 4 sent';
+});
+
+/* round 5 */
+document.querySelectorAll('#scale button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#scale button').forEach(x=>x.classList.toggle('on',x===b));});
+let sid=null;const sec=document.getElementById('sec'),go=document.getElementById('go');
+go.onclick=()=>{
+  if(sid){clearInterval(sid);sid=null;go.textContent='Go';sec.textContent='60';return;}
+  let s=60;sec.textContent=s;go.textContent='Stop';
+  sid=setInterval(()=>{s--;sec.textContent=s;if(s<=0){clearInterval(sid);sid=null;go.textContent='Again';sec.textContent='✓';}},1000);
+};
+
+show(0);
+</script>
+</body>
+</html>
